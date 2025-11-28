@@ -1,7 +1,5 @@
 import personal
 import time
-#from datetime import datetime
-#import zoneinfo
 import random
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -13,8 +11,8 @@ from selenium.webdriver.firefox.options import Options
 
 def main():
     #PERSONALIZE ONLY THESE FIELDS!!!
-    username = personal.username
-    password = personal.password
+    username = 'username'   #Replace username with your username
+    password = 'password'   #Replace password with your password
 
 
     #DON'T TOUCH ANYTHING FROM HERE!!!
