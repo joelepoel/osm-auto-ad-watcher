@@ -10,26 +10,26 @@ from selenium.webdriver.firefox.options import Options
 
 def main():
     #PERSONALIZE ONLY THESE FIELDS!!!
-    username = "yourusername"   #Replace yourusername with your username
-    password = "yourpassword"  #Replace yourpassword with your password
+    username = "username"   #Replace yourusername with your username
+    password = "password"   #Replace yourpassword with your password
     dutch_osm = True               #Set to False if you are playing on osm.com instead of osm.nl
 
 
     #DON'T TOUCH ANYTHING FROM HERE!!!
 
+    #Sets options for the driver
     options = Options()
     #options.add_argument("--headless")      #Comment out this line to show the visual of what the bot does
     options.add_argument("--width=1920")
     options.add_argument("--height=1080")
     options.set_preference("media.volume_scale", "0.0")
 
-
     if dutch_osm:
         url = 'https://www.onlinesoccermanager.nl/'
     else:
         url = 'https://www.onlinesoccermanager.com/'
 
-
+    #Sets driver
     driver = webdriver.Firefox(options = options)
     driver.get(url)                       #Getting the given OSM url
     print('getting osm...')
@@ -37,8 +37,8 @@ def main():
     print('The bot is now on the OSM website')
 
 
-    login(driver, username, password)       #Logs in the user with the credentials given in the personal.py file
-    adwatcher(driver)
+    login(driver, username, password)      #Logs in the user with the credentials given in the personal.py file
+    adwatcher(driver)                      #Ad watching function
 
     #driver.close()
     #print('succesfully closed tab')
@@ -126,14 +126,35 @@ def adwatcher(driver):
             time.sleep(4)
 
             if driver.find_elements(By.CLASS_NAME, 'modal-title'):    #If OSM doesnt play an ad, because you have to wait to see more ads
+                #Clicks off the can't watch anymore ads message
+                driver.execute_script("""
+                    const el = document.elementFromPoint(1200, 50);
+                    if (el) el.click();
+                """)    #Clicks next to no more ads window to close it
+                print('Closed no more ads window')
+                time.sleep(sleeptime())
+
+                if driver.find_elements(By.CSS_SELECTOR,".product-body.claim-daily-reward:not(.disabled-product)"):    #Checks for claimable free boss coins
+                    print('Bonus boss-coin claimable')
+                    bonus = driver.find_element(By.CSS_SELECTOR,".product-body.claim-daily-reward")
+                    bonus.click()
+                    print('Claimed free daily bonus!')
+                else:
+                    print('No daily free boss-coins claimable right now...')
+                
+                #Checks what time it is, so it will give a correct message on when it will try again
                 current_time = time.localtime()
                 try_hour = str(current_time.tm_hour + 1)
                 if len(try_hour) == 1:
                     try_hour = f"0{try_hour}"
+                elif try_hour == 24:
+                    try_hour = "00"
+
                 try_minute = str(current_time.tm_min)
                 if len(try_minute) == 1:
                     try_minute = f"0{try_minute}"
                 print(f"Can't watch anymore ads, trying again at {try_hour}:{try_minute}")
+
                 time.sleep(3600)
                 print('Waited an hour. Trying again.')
                 driver.refresh()    #Refreshes page, so the bot can try again.
