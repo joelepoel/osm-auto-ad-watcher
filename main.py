@@ -1,25 +1,41 @@
-import personal
 import time
 import random
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+import sys, os
 
 #source venv/bin/activate to work in the virtual environment
 
 def main():
-    #PERSONALIZE ONLY THESE FIELDS!!!
-    username = "username"   #Replace yourusername with your username
-    password = "password"   #Replace yourpassword with your password
-    dutch_osm = True               #Set to False if you are playing on osm.com instead of osm.nl
+    #Reads from config.txt
+    config_path = get_path("config.txt")
 
+    username = None
+    password = None
 
-    #DON'T TOUCH ANYTHING FROM HERE!!!
+    with open(config_path, "r") as f:
+        for line in f:
+            if line.startswith("username"):
+                username = line.split('"')[1]
+            elif line.startswith("password"):
+                password = line.split('"')[1]
+            elif line.startswith("dutch_osm"):
+                if 'true' in line.lower():
+                    dutch_osm = True
+                else:
+                    dutch_osm = False
+            elif line.startswith("headless"):
+                if 'true' in line.lower():
+                    headless = True
+                else:
+                    headless = False
 
     #Sets options for the driver
     options = Options()
-    #options.add_argument("--headless")      #Comment out this line to show the visual of what the bot does
+    if headless:
+        options.add_argument("--headless")
     options.add_argument("--width=1920")
     options.add_argument("--height=1080")
     options.set_preference("media.volume_scale", "0.0")
@@ -74,6 +90,15 @@ def login(driver, username, password):   #The whole process of logging in, accep
     print('Succesfully logged in!')
     time.sleep(5)
 
+def get_path(filename):
+    if hasattr(sys, '_MEIPASS'):
+        # Running as PyInstaller EXE → get folder of the EXE
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        # Running as normal script
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_dir, filename)
 
 def adwatcher(driver):
     wallet_is_open = False
